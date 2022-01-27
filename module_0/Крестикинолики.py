@@ -1,34 +1,35 @@
-board = [["-" for i in range(3)] for j in range(3)]
+def greet(count):
+    if count == 0:
+        print("Добро пожаловать в игру крестики-нолики для двоих!",
+              "Чтобы выиграть, нужно составить комбинацию три в ряд.",
+              "Вводить координаты нужно через пробел: сначала строку, затем столбец.", sep="\n")
 
-def greet():
-    print("Добро пожаловать в игру крестики-нолики на двоих!")
-    
 
 def show_board(board):
     """
     Выводит поле с текущим расположением крестиков и ноликов.
-    """ 
+    """
+    print(" ", 1, 2, 3)
     for i in range(3):
         print(i + 1, *board[i])
-    print(" ", 1, 2, 3)
 
 
-def take_input(player_token):
+def take_input(player_token, board):
     """
-    Принимает от пользователя координаты и размещает там соответсвующую фигуру. 
+    Принимает от пользователя координаты и размещает там соответсвующую фигуру,
+    если это возможно. 
     """
-    valid = False
-    while not valid:
-        player_answer = input("Куда поставим " + player_token + "? ")
+    while True:
+        inp = input("Куда хотите поставить " + player_token + "? ")
         try:
-            x, y = list(map(int, player_answer.split()))
+            x, y = map(int, inp.split())
         except:
             print("Некорректный ввод. Вы уверены, что ввели координаты?")
             continue
         if 1 <= x <= 3 and 1 <= y <= 3:
-            if(str(board[x - 1][y - 1]) not in "XO"):
+            if board[x - 1][y - 1] == "·":
                 board[x - 1][y - 1] = player_token
-                valid = True
+                break
             else:
                 print("Эта клетка уже занята!")
         else:
@@ -36,43 +37,45 @@ def take_input(player_token):
 
 
 def check(board):
-   """
-   Проверяет, нет ли выигрышной коомбинации на поле.
-   """
-   win_coord = (((1, 1), (2, 1), (3, 1)), ((1, 2),(2, 2), (3, 2)), ((1, 3),(2, 3), (3, 3)), ((1, 1), (1, 2), (1, 3)),\
-                ((2, 1), (2, 2), (2, 3)), ((3, 1), (3, 2), (3, 3)), ((1, 1), (2, 2), (3, 3)), ((1, 3), (2, 2), (3, 1)))
-   for i in win_coord:
-       if board[i[0][0] - 1][i[0][1] - 1] == board[i[1][0] - 1][i[1][1] - 1] == board[i[2][0] - 1][i[2][1] - 1] and board[i[0][0] - 1][i[0][1] - 1] in "XO":
-          return board[i[0][0] - 1][i[0][1] - 1]
-   return False
+    """
+    Проверяет, нет ли выигрышной коомбинации на поле.
+    """
+    arr = [i for s in board for i in s]
+    win_pos = (0, 1, 2), (3, 4, 5), (6, 7, 8), (0, 3, 6), (1, 4, 7), (2, 5, 8), (0, 4, 8), (2, 4, 6)
+    for x, y, z in win_pos:
+        if arr[x] in "XO":
+            if arr[x] == arr[y] == arr[z]:
+                return arr[x]
 
 
-def main(board):
+def main():
     """
     Основная фунция игры.
     """
     greet()
+    input("Нажмите Enter, чтобы начать играть.")
+    board = [["·" for i in range(3)] for j in range(3)]    
     counter = 0
-    win = False
-    while not win:
+    while True:
         show_board(board)
-        if counter % 2 == 0:
-           take_input("X")
+        if counter % 2:
+            take_input("O", board)
         else:
-           take_input("O")
+            take_input("X", board)
         counter += 1
         if counter > 4:
-           tmp = check(board)
-           if tmp:
-              print(tmp, "выиграл!")
-              win = True
-              break
+            tmp = check(board)
+            if tmp:
+                print(tmp, "выиграл!")
+                return
         if counter == 9:
             print("Ничья!")
-            break
+            return
     show_board(board)
-    
-    
-main(board)
 
-input("Нажмите Enter для выхода!")
+
+while True:
+    main()
+    inp = input("Наберите 'выход', чтобы выйти, или Enter, чтобы сыграть снова. ")
+    if inp == "выход":
+        break
